@@ -6,5 +6,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: ['@libsql/client'],
+  },
 }
 module.exports = nextConfig

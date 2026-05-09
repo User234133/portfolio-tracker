@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import {
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   AreaChart, Area,
 } from 'recharts'
@@ -222,32 +222,30 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-slate-800 rounded-xl p-5 border border-slate-700 flex flex-col gap-4">
-            <div>
-              <h2 className="font-semibold mb-2 text-slate-200">Répartition par compte</h2>
-              <ResponsiveContainer width="100%" height={130}>
-                <PieChart>
-                  <Pie data={pieCompte} cx="50%" cy="50%" outerRadius={55} dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent*100).toFixed(0)}%`} labelLine={false}>
-                    {pieCompte.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
-                  </Pie>
-                  <Tooltip formatter={(v: any) => fmt(v)} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div>
-              <h2 className="font-semibold mb-2 text-slate-200">Répartition par actif</h2>
-              <ResponsiveContainer width="100%" height={120}>
-                <PieChart>
-                  <Pie data={pieAsset} cx="50%" cy="50%" outerRadius={50} innerRadius={25} dataKey="value">
-                    {pieAsset.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip formatter={(v: any) => fmt(v)} labelFormatter={(_, p) => p?.[0]?.name} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
+          <div>
+  <h2 className="font-semibold mb-2 text-slate-200">Répartition par compte</h2>
+  <ResponsiveContainer width="100%" height={150}>
+    <PieChart>
+      <Pie data={pieCompte} cx="50%" cy="50%" outerRadius={55} dataKey="value">
+        {pieCompte.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
+      </Pie>
+      <Tooltip formatter={(v: any) => fmt(v)} />
+      <Legend formatter={(value, entry: any) => `${value} ${(entry.payload.percent * 100).toFixed(0)}%`} />
+    </PieChart>
+  </ResponsiveContainer>
+</div>
+<div>
+  <h2 className="font-semibold mb-2 text-slate-200">Répartition par actif</h2>
+  <ResponsiveContainer width="100%" height={160}>
+    <PieChart>
+      <Pie data={pieAsset} cx="50%" cy="50%" outerRadius={60} innerRadius={30} dataKey="value">
+        {pieAsset.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+      </Pie>
+      <Tooltip formatter={(v: any) => fmt(v)} labelFormatter={(_, p) => p?.[0]?.name} />
+      <Legend formatter={(value) => value} />
+    </PieChart>
+  </ResponsiveContainer>
+</div>
 
         {/* Volume mensuel */}
         {barData.length > 0 && (

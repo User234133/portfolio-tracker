@@ -75,10 +75,7 @@ export default function FluxPage() {
             {showForm ? '✕ Annuler' : '+ Nouveau flux'}
           </button>
         </div>
-
-        // Remplace le bloc des 3 KPIs existants (totalDepots / totalRetraits / totalDividendes)
-// par ce bloc étendu avec les soldes par compte
-
+        
 {/* KPIs + Soldes */}
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
   <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">

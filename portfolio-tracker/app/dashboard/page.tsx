@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
@@ -367,7 +368,9 @@ export default function Dashboard() {
                     return (
                       <tr key={i} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
                         <td className="px-4 py-3">
-                          <div className="font-medium text-white">{p.symbole}</div>
+                          <div className="font-medium">
+                            <Link href={`/graphiques?symbole=${encodeURIComponent(p.symbole)}`} className="text-white hover:text-indigo-400 transition-colors">{p.symbole}</Link>
+                          </div>
                           <div className="text-slate-400 text-xs truncate max-w-[140px]">{p.nom}</div>
                         </td>
                         <td className="px-4 py-3 text-slate-400 text-xs">{p.compte}</td>

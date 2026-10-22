@@ -1,39 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbExecute } from '@/lib/db'
 import { checkAuth } from '@/lib/auth'
+import { computeLines } from '@/lib/portfolio'
 
 export async function GET(request: NextRequest) {
   if (!checkAuth(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const txResult = await dbExecute('SELECT * FROM transactions ORDER BY date ASC')
-  const transactions = txResult.rows as any[]
+  const txResult = await dbExecute(
+    'SELECT symbole, nom, compte, type, quantite, cout_total FROM transactions ORDER BY date ASC, id ASC'
+  )
 
-  // Calcul PRMP et P&L réalisé par symbole
-  const prmp: Record<string, { qty: number; coutMoyen: number }> = {}
-  const pnlRealise: Record<string, { symbole: string; nom: string; pnl: number; ventes: number }> = {}
-
-  for (const tx of transactions) {
-    const sym = tx.symbole
-    const qty = parseFloat(tx.quantite)
-    const cout = parseFloat(tx.cout_total)
-
-    if (!prmp[sym]) prmp[sym] = { qty: 0, coutMoyen: 0 }
-    if (!pnlRealise[sym]) pnlRealise[sym] = { symbole: sym, nom: tx.nom, pnl: 0, ventes: 0 }
-
-    if (tx.type === 'Achat') {
-      const totalAvant = prmp[sym].qty * prmp[sym].coutMoyen
-      prmp[sym].qty += qty
-      prmp[sym].coutMoyen = prmp[sym].qty > 0 ? (totalAvant + cout) / prmp[sym].qty : 0
-    } else if (tx.type === 'Vente') {
-      // P&L réalisé = montant encaissé - (qté vendue × PRMP)
-      const pnl = cout - qty * prmp[sym].coutMoyen
-      pnlRealise[sym].pnl += pnl
-      pnlRealise[sym].ventes += cout
-      prmp[sym].qty = Math.max(0, prmp[sym].qty - qty)
-    }
+  // P&L réalisé par symbole (tous comptes confondus), calculé avec le PRMP de chaque compte
+  const parSymbole = new Map<string, { symbole: string; nom: string; pnl: number; ventes: number }>()
+  for (const l of computeLines(txResult.rows as any[])) {
+    const p = parSymbole.get(l.symbole) ?? { symbole: l.symbole, nom: l.nom, pnl: 0, ventes: 0 }
+    p.pnl += l.realise
+    p.ventes += l.ventes
+    parSymbole.set(l.symbole, p)
   }
 
-  const result = Object.values(pnlRealise)
+  const result = Array.from(parSymbole.values())
     .filter(p => p.ventes > 0)
     .sort((a, b) => b.pnl - a.pnl)
 

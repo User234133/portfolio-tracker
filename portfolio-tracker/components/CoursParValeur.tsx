@@ -21,9 +21,9 @@ const color = (n: number) => (n >= 0 ? 'text-green-400' : 'text-red-400')
 
 function StatCard({ label, value, sub, valueClass }: { label: string; value: string; sub?: string; valueClass?: string }) {
   return (
-    <div className="bg-slate-800 rounded-xl p-5 border border-slate-700">
+    <div className="bg-slate-800 rounded-xl p-5 border border-slate-700 wobble">
       <p className="text-slate-400 text-xs mb-1">{label}</p>
-      <p className={`text-2xl font-bold ${valueClass || 'text-white'}`}>{value}</p>
+      <p className={`text-2xl font-bold ${valueClass || 'text-ink'}`}>{value}</p>
       {sub && <p className="text-xs mt-1 text-slate-400">{sub}</p>}
     </div>
   )
@@ -32,7 +32,7 @@ function StatCard({ label, value, sub, valueClass }: { label: string; value: str
 function PeriodBtn({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
     <button onClick={onClick}
-      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}>
+      className={`px-2 sm:px-3 py-1 rounded-lg text-[13px] sm:text-sm font-medium transition-colors ${active ? 'bg-indigo-600 text-ink' : 'text-slate-400 hover:text-ink hover:bg-slate-700'}`}>
       {label}
     </button>
   )
@@ -102,9 +102,9 @@ export default function CoursParValeur() {
     return (
       <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs space-y-1">
         <p className="text-slate-400">{new Date(p.date).toLocaleDateString('fr-FR')}</p>
-        <p className="text-white font-semibold">{money(p.prix, devise)}</p>
+        <p className="text-ink font-semibold">{money(p.prix, devise)}</p>
         {p.pru != null && (
-          <p className="text-amber-400">
+          <p className="text-amber-700">
             PRU {money(p.pru, devise)} ({pct(((p.prix - p.pru) / p.pru) * 100)})
           </p>
         )}
@@ -115,17 +115,16 @@ export default function CoursParValeur() {
   }
 
   if (loadingList) return (
-    <div className="flex items-center justify-center h-64 text-slate-400">Chargement...</div>
+    <div className="flex items-center justify-center h-64 text-slate-400">Le hamster court... 🐹</div>
   )
 
   return (
     <div>
       <div>
         <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
-          <h2 className="text-lg font-semibold text-slate-200">Cours par valeur</h2>
           {valeurs.length > 0 && (
             <select value={symbole} onChange={e => setSymbole(e.target.value)}
-              className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 max-w-full">
+              className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-ink text-sm focus:outline-none focus:border-indigo-500 w-full sm:w-auto max-w-full">
               {valeurs.map(v => (
                 <option key={v.symbole} value={v.symbole}>
                   {v.symbole} — {v.nom}{v.qty > 1e-6 ? '' : ' (soldé)'}
@@ -144,7 +143,7 @@ export default function CoursParValeur() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <StatCard label="Dernier cours" value={data?.dernierPrix != null ? money(data.dernierPrix, devise) : '—'} sub={data?.nom} />
               <StatCard label="PRU (frais inclus)" value={data?.pruActuel ? money(data.pruActuel, devise) : '—'}
-                sub={data?.quantite > 0 ? `${data.quantite} titre(s) détenu(s)` : 'Position soldée'} valueClass="text-amber-400" />
+                sub={data?.quantite > 0 ? `${data.quantite} titre(s) détenu(s)` : 'Position soldée'} valueClass="text-amber-700" />
               <StatCard label="Écart vs PRU" value={vsPru != null ? pct(vsPru) : '—'} valueClass={vsPru != null ? color(vsPru) : undefined} />
               <StatCard label="Variation sur la période" value={data?.variationPeriode != null ? pct(data.variationPeriode) : '—'}
                 valueClass={data?.variationPeriode != null ? color(data.variationPeriode) : undefined} />
@@ -164,29 +163,29 @@ export default function CoursParValeur() {
               </div>
 
               {loading ? (
-                <div className="h-80 flex items-center justify-center text-slate-500 text-sm">Chargement du cours...</div>
+                <div className="h-80 flex items-center justify-center text-slate-500 text-sm">Le hamster va chercher le cours... 🐹</div>
               ) : points.length > 0 ? (
                 <>
                   <ResponsiveContainer width="100%" height={380}>
                     <ComposedChart data={points}>
                       <defs>
                         <linearGradient id="gradPrix" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                      <XAxis dataKey="date" stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={fmtDate} minTickGap={40} />
-                      <YAxis stroke="#475569" tick={{ fontSize: 11 }} width={60}
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eadfb4" />
+                      <XAxis dataKey="date" stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={fmtDate} minTickGap={40} />
+                      <YAxis stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} width={60}
                         domain={[(min: number) => min * 0.97, (max: number) => max * 1.03]}
                         tickFormatter={(v: number) => v.toFixed(v < 10 ? 2 : 0)} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Area type="monotone" dataKey="prix" stroke="#818cf8" strokeWidth={2} fill="url(#gradPrix)" dot={false} isAnimationActive={false} />
-                      <Line type="stepAfter" dataKey="pru" stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="5 4" dot={false} connectNulls={false} isAnimationActive={false} />
+                      <Area type="monotone" dataKey="prix" stroke="#8B5CF6" strokeWidth={3} fill="url(#gradPrix)" dot={false} isAnimationActive={false} />
+                      <Line type="stepAfter" dataKey="pru" stroke="#FF8A3D" strokeWidth={1.5} strokeDasharray="5 4" dot={false} connectNulls={false} isAnimationActive={false} />
                       <Line dataKey="achat" stroke="none" activeDot={false} isAnimationActive={false}
-                        dot={{ r: 5, fill: '#22c55e', stroke: '#0f172a', strokeWidth: 1.5 }} />
+                        dot={{ r: 5, fill: '#22c55e', stroke: '#1b1233', strokeWidth: 1.5 }} />
                       <Line dataKey="vente" stroke="none" activeDot={false} isAnimationActive={false}
-                        dot={{ r: 5, fill: '#ef4444', stroke: '#0f172a', strokeWidth: 1.5 }} />
+                        dot={{ r: 5, fill: '#FF5C5C', stroke: '#1b1233', strokeWidth: 1.5 }} />
                     </ComposedChart>
                   </ResponsiveContainer>
                   {data && data.convertie === false && (

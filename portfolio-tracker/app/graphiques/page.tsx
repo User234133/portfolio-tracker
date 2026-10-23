@@ -15,7 +15,7 @@ export default function Graphiques() {
   }, [])
 
   const tabs: { key: Onglet; label: string }[] = [
-    { key: 'analyse', label: '📊 Portefeuille & P&L' },
+    { key: 'analyse', label: '📊 Portefeuille' },
     { key: 'cours', label: '📈 Cours par valeur' },
   ]
 
@@ -23,12 +23,12 @@ export default function Graphiques() {
     <div className="min-h-screen">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-2 mb-6 flex-wrap">
-          <h1 className="text-2xl font-bold mr-4">Graphiques</h1>
+        <h1 className="text-2xl font-bold mb-3">Graphiques</h1>
+        <div className="grid grid-cols-2 sm:flex gap-2 mb-6">
           {tabs.map(t => (
             <button key={t.key} onClick={() => setOnglet(t.key)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                onglet === t.key ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-700'
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                onglet === t.key ? 'bg-indigo-600 text-ink' : 'text-slate-300 hover:text-ink hover:bg-slate-700'
               }`}>
               {t.label}
             </button>

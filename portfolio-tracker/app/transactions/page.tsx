@@ -136,10 +136,10 @@ export default function TransactionsPage() {
     <div className="min-h-screen">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
           <h1 className="text-2xl font-bold">Transactions</h1>
           <button onClick={() => setShowForm(!showForm)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            className="bg-indigo-600 hover:bg-indigo-700 text-ink px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             {showForm ? '✕ Annuler' : '+ Nouvelle transaction'}
           </button>
         </div>
@@ -149,7 +149,7 @@ export default function TransactionsPage() {
           <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 mb-6">
             <h2 className="font-semibold mb-5">Nouvelle transaction</h2>
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
 
                 {/* Date */}
                 <div>
@@ -245,7 +245,7 @@ export default function TransactionsPage() {
               {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
 
               <button type="submit" disabled={saving || !pru}
-                className="bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white font-semibold px-6 py-2 rounded-lg text-sm transition-colors">
+                className="bg-green-600 hover:bg-green-700 disabled:opacity-40 text-ink font-semibold px-6 py-2 rounded-lg text-sm transition-colors">
                 {saving ? 'Sauvegarde...' : '✓ Enregistrer'}
               </button>
             </form>
@@ -254,13 +254,31 @@ export default function TransactionsPage() {
 
         {/* Tableau */}
         {loading ? (
-          <p className="text-slate-400">Chargement...</p>
+          <p className="text-slate-400">Le hamster court... 🐹</p>
         ) : (
           <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-700 text-sm text-slate-400">
               {transactions.length} transaction(s)
             </div>
-            <div className="overflow-x-auto">
+            <div className="md:hidden">
+              {transactions.map((t: any) => (
+                <div key={t.id} className="px-4 py-3 border-b border-slate-700/50">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium border-2 border-ink ${t.type === 'Achat' ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>{t.type}</span>
+                      <span className="font-semibold truncate">{t.symbole}</span>
+                    </div>
+                    <span className="font-bold shrink-0">{fmtEur(t.cout_total)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-1.5 text-xs text-slate-400">
+                    <span>{t.date} · {t.compte}</span>
+                    <span>{parseFloat(t.quantite).toFixed(t.quantite < 1 ? 6 : 4)} × {fmt(t.prix_unitaire)}</span>
+                  </div>
+                  <button onClick={() => handleDelete(t.id)} className="mt-1 py-1.5 text-slate-500 hover:text-red-400 text-xs">🗑️ Supprimer</button>
+                </div>
+              ))}
+            </div>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-slate-400 text-left border-b border-slate-700 text-xs">
@@ -279,18 +297,18 @@ export default function TransactionsPage() {
                     <tr key={t.id} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
                       <td className="px-4 py-3 text-slate-300 text-xs">{t.date}</td>
                       <td className="px-4 py-3">
-                        <span className="font-medium text-white">{t.symbole}</span>
+                        <span className="font-medium text-ink">{t.symbole}</span>
                         {t.nom && <span className="text-slate-400 text-xs ml-2 hidden md:inline">{t.nom}</span>}
                       </td>
                       <td className="px-4 py-3 text-slate-400 text-xs">{t.compte}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${t.type === 'Achat' ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium border-2 border-ink ${t.type === 'Achat' ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>
                           {t.type}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right text-slate-300 text-xs">{parseFloat(t.quantite).toFixed(t.quantite < 1 ? 6 : 4)}</td>
                       <td className="px-4 py-3 text-right text-slate-300 text-xs">{fmt(t.prix_unitaire)}</td>
-                      <td className="px-4 py-3 text-right font-medium text-white">{fmtEur(t.cout_total)}</td>
+                      <td className="px-4 py-3 text-right font-medium text-ink">{fmtEur(t.cout_total)}</td>
                       <td className="px-4 py-3 text-right">
                         <button onClick={() => handleDelete(t.id)} className="text-slate-500 hover:text-red-400 transition-colors text-xs">
                           Supprimer

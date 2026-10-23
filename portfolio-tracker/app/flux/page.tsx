@@ -66,11 +66,11 @@ export default function FluxPage() {
     <div className="min-h-screen">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
           <h1 className="text-2xl font-bold">Flux de trésorerie</h1>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="bg-indigo-600 hover:bg-indigo-700 text-ink px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
             {showForm ? '✕ Annuler' : '+ Nouveau flux'}
           </button>
@@ -78,19 +78,19 @@ export default function FluxPage() {
         
 {/* KPIs + Soldes */}
 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 wobble">
     <p className="text-slate-400 text-xs mb-1">Total dépôts</p>
     <p className="text-xl font-bold text-blue-400">{fmt(totalDepots)}</p>
   </div>
-  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 wobble">
     <p className="text-slate-400 text-xs mb-1">Total retraits</p>
     <p className="text-xl font-bold text-red-400">{fmt(totalRetraits)}</p>
   </div>
-  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 wobble">
     <p className="text-slate-400 text-xs mb-1">Dividendes reçus</p>
     <p className="text-xl font-bold text-yellow-400">{fmt(totalDividendes)}</p>
   </div>
-  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 wobble">
     <p className="text-slate-400 text-xs mb-1">Cash net total</p>
     <p className={`text-xl font-bold ${(totalDepots - totalRetraits) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
       {fmt(totalDepots - totalRetraits)}
@@ -141,7 +141,7 @@ export default function FluxPage() {
         {showForm && (
           <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 mb-6">
             <h2 className="font-semibold mb-4">Nouveau flux</h2>
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs text-slate-400 mb-1">Date</label>
                 <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
@@ -173,7 +173,7 @@ export default function FluxPage() {
               </div>
               <div className="flex items-end">
                 <button type="submit" disabled={saving}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-2 rounded-lg text-sm transition-colors">
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-ink font-semibold py-2 rounded-lg text-sm transition-colors">
                   {saving ? 'Sauvegarde...' : '✓ Enregistrer'}
                 </button>
               </div>
@@ -183,13 +183,28 @@ export default function FluxPage() {
 
         {/* Tableau */}
         {loading ? (
-          <p className="text-slate-400">Chargement...</p>
+          <p className="text-slate-400">Le hamster court... 🐹</p>
         ) : (
           <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
             <div className="px-5 py-3 border-b border-slate-700 text-sm text-slate-400">
               {flux.length} flux enregistré(s)
             </div>
-            <div className="overflow-x-auto">
+            <div className="md:hidden">
+              {flux.map((f: any) => (
+                <div key={f.id} className="px-4 py-3 border-b border-slate-700/50">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium border-2 border-ink ${typeColor(f.type)}`}>{f.type}</span>
+                      <span className="text-sm text-slate-300 truncate">{f.compte}</span>
+                    </div>
+                    <span className="font-bold shrink-0">{fmt(f.montant)}</span>
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1.5">{f.date}{f.commentaire ? ` · ${f.commentaire}` : ''}</div>
+                  <button onClick={() => handleDelete(f.id)} className="mt-1 py-1.5 text-slate-500 hover:text-red-400 text-xs">🗑️ Supprimer</button>
+                </div>
+              ))}
+            </div>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-slate-400 text-left border-b border-slate-700">
@@ -207,9 +222,9 @@ export default function FluxPage() {
                       <td className="px-4 py-3 text-slate-300">{f.date}</td>
                       <td className="px-4 py-3 text-slate-300">{f.compte}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${typeColor(f.type)}`}>{f.type}</span>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium border-2 border-ink ${typeColor(f.type)}`}>{f.type}</span>
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-white">{fmt(f.montant)}</td>
+                      <td className="px-4 py-3 text-right font-medium text-ink">{fmt(f.montant)}</td>
                       <td className="px-4 py-3 text-slate-400 text-xs">{f.commentaire || '—'}</td>
                       <td className="px-4 py-3 text-right">
                         <button onClick={() => handleDelete(f.id)} className="text-slate-500 hover:text-red-400 transition-colors text-xs">

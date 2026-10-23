@@ -2,7 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --ink: #1b1233;
+  --cream: #FFF1C9;
+}
+
+/* ---------- Base ---------- */
 body {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: var(--cream);
+  background-image: radial-gradient(#f0d98a 1.6px, transparent 1.7px);
+  background-size: 22px 22px;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: "Lilita One", Fredoka, ui-rounded, system-ui, sans-serif;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em;
+}
+
+::selection { background: #FF5CA8; color: var(--ink); }
+
+/* ---------- Cartes : contour épais + ombre dure ---------- */
+.bg-slate-800.rounded-xl,
+.bg-slate-800.rounded-2xl {
+  border-width: 3px;
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.bg-slate-800.rounded-lg {
+  border-width: 2px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.border-slate-700, .border-slate-600 { border-color: var(--ink); }
+.border-slate-700\/50 { border-color: rgba(27, 18, 51, 0.15); }
+thead tr { border-bottom-width: 2px; }
+
+/* ---------- Boutons ---------- */
+button, a { transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s; }
+button.bg-indigo-600, a.bg-indigo-600, button.bg-green-600, button.bg-slate-700 {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-weight: 600;
+}
+button.bg-indigo-600:active, a.bg-indigo-600:active, button.bg-green-600:active, button.bg-slate-700:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+button.bg-indigo-600:hover, a.bg-indigo-600:hover { transform: rotate(-1deg) scale(1.03); }
+
+/* ---------- Champs ---------- */
+input.border, select.border, textarea.border {
+  border-width: 2px;
+  border-radius: 12px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 3px 3px 0 #8B5CF6;
+}
+
+/* ---------- Petites cartes de chiffres : penchées, colorées ---------- */
+.wobble { transition: transform 0.15s; }
+.wobble:nth-child(odd) { transform: rotate(-1.2deg); }
+.wobble:nth-child(even) { transform: rotate(1deg); }
+.wobble:hover, .wobble:active { transform: rotate(0deg) scale(1.03); }
+.wobble:nth-child(5n+1) { background-color: #FFE98A; }
+.wobble:nth-child(5n+2) { background-color: #FFC2E2; }
+.wobble:nth-child(5n+3) { background-color: #C8F7DC; }
+.wobble:nth-child(5n+4) { background-color: #CDEEFF; }
+.wobble:nth-child(5n+5) { background-color: #E4D9FF; }
+
+/* ---------- Animation d'entrée ---------- */
+@keyframes pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+main { animation: pop 0.35s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  /* 16 px minimum : sinon iOS zoome sur le champ à chaque focus */
+  input, select, textarea { font-size: 16px !important; }
+  .bg-slate-800.rounded-xl, .bg-slate-800.rounded-2xl { box-shadow: 4px 4px 0 var(--ink); }
+  /* laisse la place à la barre d'onglets du bas */
+  body:has(.bottom-tabs) { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
 }

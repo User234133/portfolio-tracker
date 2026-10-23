@@ -6,10 +6,10 @@ import {
   PieChart, Pie, AreaChart, Area, ReferenceLine,
 } from 'recharts'
 
-const COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16', '#a855f7', '#3b82f6']
-const C_LATENT = '#6366f1'
-const C_REALISE = '#f59e0b'
-const C_DIV = '#14b8a6'
+const COLORS = ['#FF5CA8', '#4ADE80', '#FFD93D', '#5BC8FF', '#8B5CF6', '#FF8A3D', '#2DD4BF', '#FF5C5C', '#A3E635', '#C084FC', '#38BDF8', '#FB7185']
+const C_LATENT = '#8B5CF6'
+const C_REALISE = '#FFB020'
+const C_DIV = '#2DD4BF'
 
 const fmt = (n: number) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 })
 const signed = (n: number) => `${n >= 0 ? '+' : ''}${fmt(n)}`
@@ -36,7 +36,7 @@ function Card({ title, subtitle, right, children }: { title: string; subtitle?: 
 function Seg({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
     <button onClick={onClick}
-      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}>
+      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-indigo-600 text-ink' : 'text-slate-400 hover:text-ink hover:bg-slate-700'}`}>
       {label}
     </button>
   )
@@ -79,7 +79,7 @@ export default function AnalysePortefeuille() {
   }, [period])
 
   if (erreur) return <div className="text-red-400 text-sm">{erreur}</div>
-  if (!data) return <div className="flex items-center justify-center h-64 text-slate-400">Chargement de l'analyse...</div>
+  if (!data) return <div className="flex items-center justify-center h-64 text-slate-400">Le hamster fait ses calculs... 🐹</div>
 
   const comptes: any[] = data.comptes || []
   const lignes: any[] = data.lignes || []
@@ -154,10 +154,10 @@ export default function AnalysePortefeuille() {
         </div>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={barComptes}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-            <XAxis dataKey="name" stroke="#475569" tick={{ fontSize: 12 }} />
-            <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={short} />
-            <ReferenceLine y={0} stroke="#475569" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#eadfb4" />
+            <XAxis dataKey="name" stroke="#1b1233" tick={{ fontSize: 12, fill: '#4a3b78' }} />
+            <YAxis stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={short} />
+            <ReferenceLine y={0} stroke="#1b1233" />
             <Tooltip content={({ active, payload }: any) => {
               if (!active || !payload?.length) return null
               const p = payload[0].payload
@@ -172,9 +172,9 @@ export default function AnalysePortefeuille() {
               )
             }} />
             <Legend formatter={legendFmt} />
-            <Bar dataKey="Latente" stackId="a" fill={C_LATENT} />
-            <Bar dataKey="Réalisée" stackId="a" fill={C_REALISE} />
-            <Bar dataKey="Dividendes" stackId="a" fill={C_DIV} radius={[4, 4, 0, 0]} />
+            <Bar stroke="#1b1233" strokeWidth={2} dataKey="Latente" stackId="a" fill={C_LATENT} />
+            <Bar stroke="#1b1233" strokeWidth={2} dataKey="Réalisée" stackId="a" fill={C_REALISE} />
+            <Bar stroke="#1b1233" strokeWidth={2} dataKey="Dividendes" stackId="a" fill={C_DIV} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </Card>
@@ -198,11 +198,11 @@ export default function AnalysePortefeuille() {
         }>
         <ResponsiveContainer width="100%" height={Math.max(260, parValeur.length * 34)}>
           <BarChart data={parValeur} layout="vertical" margin={{ left: 5, right: 30 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
-            <XAxis type="number" stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={mode === 'eur' ? short : (v: number) => `${v}%`} />
-            <YAxis type="category" dataKey="name" stroke="#475569" tick={{ fontSize: 11 }} width={75} />
-            <ReferenceLine x={0} stroke="#475569" />
-            <Tooltip cursor={{ fill: '#1e293b' }} content={({ active, payload }: any) => {
+            <CartesianGrid strokeDasharray="3 3" stroke="#eadfb4" horizontal={false} />
+            <XAxis type="number" stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={mode === 'eur' ? short : (v: number) => `${v}%`} />
+            <YAxis type="category" dataKey="name" stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} width={75} />
+            <ReferenceLine x={0} stroke="#1b1233" />
+            <Tooltip cursor={{ fill: '#FFF1C9' }} content={({ active, payload }: any) => {
               if (!active || !payload?.length) return null
               const p = payload[0].payload
               return (
@@ -218,12 +218,12 @@ export default function AnalysePortefeuille() {
             {mode === 'eur' ? (
               <>
                 <Legend formatter={legendFmt} />
-                <Bar dataKey="latent" name="Latent" stackId="a" fill={C_LATENT} />
-                <Bar dataKey="realise" name="Réalisé" stackId="a" fill={C_REALISE} radius={[0, 4, 4, 0]} />
+                <Bar stroke="#1b1233" strokeWidth={2} dataKey="latent" name="Latent" stackId="a" fill={C_LATENT} />
+                <Bar stroke="#1b1233" strokeWidth={2} dataKey="realise" name="Réalisé" stackId="a" fill={C_REALISE} radius={[0, 4, 4, 0]} />
               </>
             ) : (
-              <Bar dataKey="pct" radius={[0, 4, 4, 0]}>
-                {parValeur.map((v: any, i: number) => <Cell key={i} fill={v.pct >= 0 ? '#22c55e' : '#ef4444'} />)}
+              <Bar stroke="#1b1233" strokeWidth={2} dataKey="pct" radius={[0, 4, 4, 0]}>
+                {parValeur.map((v: any, i: number) => <Cell key={i} fill={v.pct >= 0 ? '#22c55e' : '#FF5C5C'} />)}
               </Bar>
             )}
           </BarChart>
@@ -247,19 +247,19 @@ export default function AnalysePortefeuille() {
           </div>
         }>
         {loadingHisto ? (
-          <div className="h-64 flex items-center justify-center text-slate-500 text-sm">Chargement de l'historique...</div>
+          <div className="h-64 flex items-center justify-center text-slate-500 text-sm">Le hamster fouille les archives... 🐹</div>
         ) : ptsHisto ? (
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={histo}>
               <defs>
                 <linearGradient id="gradVal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="date" stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={(d: string) => d.slice(5)} minTickGap={40} />
-              <YAxis stroke="#475569" tick={{ fontSize: 11 }} width={55} tickFormatter={short}
+              <CartesianGrid strokeDasharray="3 3" stroke="#eadfb4" />
+              <XAxis dataKey="date" stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={(d: string) => d.slice(5)} minTickGap={40} />
+              <YAxis stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} width={55} tickFormatter={short}
                 domain={vue === 'valeur' ? [(min: number) => min * 0.95, (max: number) => max * 1.03] : ['auto', 'auto']} />
               <Tooltip content={({ active, payload }: any) => {
                 if (!active || !payload?.length) return null
@@ -267,24 +267,24 @@ export default function AnalysePortefeuille() {
                 return (
                   <Tip>
                     <p className="text-slate-400">{new Date(p.date).toLocaleDateString('fr-FR')}</p>
-                    <p className="text-white">Valeur : {fmt(p.valeur)}</p>
-                    <p className="text-amber-400">Coût : {fmt(p.cout)}</p>
+                    <p className="text-ink">Valeur : {fmt(p.valeur)}</p>
+                    <p className="text-amber-700">Coût : {fmt(p.cout)}</p>
                     <p className={`font-semibold ${tone(p.plusvalue)}`}>Plus-value : {signed(p.plusvalue)}</p>
                   </Tip>
                 )
               }} />
               {vue === 'valeur' ? (
                 <>
-                  <Area type="monotone" dataKey="valeur" stroke="#6366f1" strokeWidth={2} fill="url(#gradVal)" dot={false} isAnimationActive={false} />
-                  <Area type="stepAfter" dataKey="cout" stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="5 4" fill="none" dot={false} isAnimationActive={false} />
+                  <Area type="monotone" dataKey="valeur" stroke="#8B5CF6" strokeWidth={3} fill="url(#gradVal)" dot={false} isAnimationActive={false} />
+                  <Area type="stepAfter" dataKey="cout" stroke="#FF8A3D" strokeWidth={1.5} strokeDasharray="5 4" fill="none" dot={false} isAnimationActive={false} />
                 </>
               ) : (
                 <>
-                  <ReferenceLine y={0} stroke="#475569" strokeDasharray="4 4" />
+                  <ReferenceLine y={0} stroke="#1b1233" strokeDasharray="4 4" />
                   <Area type="monotone" dataKey="plusvalue"
-                    stroke={perfHisto != null && histo[histo.length - 1].plusvalue < 0 ? '#ef4444' : '#22c55e'}
+                    stroke={perfHisto != null && histo[histo.length - 1].plusvalue < 0 ? '#FF5C5C' : '#22c55e'}
                     strokeWidth={2} fillOpacity={0.15}
-                    fill={histo[histo.length - 1].plusvalue < 0 ? '#ef4444' : '#22c55e'} dot={false} isAnimationActive={false} />
+                    fill={histo[histo.length - 1].plusvalue < 0 ? '#FF5C5C' : '#22c55e'} dot={false} isAnimationActive={false} />
                 </>
               )}
             </AreaChart>
@@ -303,7 +303,7 @@ export default function AnalysePortefeuille() {
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie data={pieValeur} cx="50%" cy="50%" outerRadius={95} innerRadius={50} dataKey="value" paddingAngle={1}>
-                {pieValeur.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="#1e293b" />)}
+                {pieValeur.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="#1b1233" />)}
               </Pie>
               <Tooltip formatter={(v: any) => fmt(Number(v))} />
               <Legend formatter={legendFmt} />
@@ -314,7 +314,7 @@ export default function AnalysePortefeuille() {
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie data={pieCompte} cx="50%" cy="50%" outerRadius={95} innerRadius={50} dataKey="value" paddingAngle={1}>
-                {pieCompte.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="#1e293b" />)}
+                {pieCompte.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="#1b1233" />)}
               </Pie>
               <Tooltip formatter={(v: any) => fmt(Number(v))} />
               <Legend formatter={legendFmt} />
@@ -329,12 +329,12 @@ export default function AnalysePortefeuille() {
           <Card title="Dividendes par mois" subtitle="Par compte">
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={divData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="mois" stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={moisLabel} />
-                <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={short} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#eadfb4" />
+                <XAxis dataKey="mois" stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={moisLabel} />
+                <YAxis stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={short} />
                 <Tooltip formatter={(v: any) => fmt(Number(v))} labelFormatter={(l: any) => moisLabel(String(l))} />
                 {divComptes.length > 1 && <Legend formatter={legendFmt} />}
-                {divComptes.map((c, i) => <Bar key={c} dataKey={c} stackId="d" fill={COLORS[(i + 6) % COLORS.length]} />)}
+                {divComptes.map((c, i) => <Bar stroke="#1b1233" strokeWidth={2} key={c} dataKey={c} stackId="d" fill={COLORS[(i + 6) % COLORS.length]} />)}
               </BarChart>
             </ResponsiveContainer>
           </Card>
@@ -343,11 +343,11 @@ export default function AnalysePortefeuille() {
           {achatsData.length > 0 ? (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={achatsData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="mois" stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={moisLabel} />
-                <YAxis stroke="#475569" tick={{ fontSize: 11 }} tickFormatter={short} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#eadfb4" />
+                <XAxis dataKey="mois" stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={moisLabel} />
+                <YAxis stroke="#1b1233" tick={{ fontSize: 11, fill: '#4a3b78' }} tickFormatter={short} />
                 <Tooltip formatter={(v: any) => fmt(Number(v))} labelFormatter={(l: any) => moisLabel(String(l))} />
-                <Bar dataKey="montant" name="Achats" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                <Bar stroke="#1b1233" strokeWidth={2} dataKey="montant" name="Achats" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : <p className="text-slate-500 text-sm">Aucune donnée</p>}

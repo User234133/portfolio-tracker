@@ -7,6 +7,7 @@ export interface Ligne {
   achats: number   // total cumulé des achats
   realise: number  // P&L réalisé (montant encaissé - quantité vendue × PRU)
   ventes: number   // total cumulé encaissé sur les ventes
+  premierAchat?: string // date du premier achat (si les lignes lues contiennent la date)
 }
 
 /**
@@ -28,6 +29,7 @@ export function computeLines(rows: any[]): Ligne[] {
     const montant = parseFloat(tx.cout_total)
 
     if (tx.type === 'Achat') {
+      if (!l.premierAchat && tx.date) l.premierAchat = String(tx.date).slice(0, 10)
       l.quantite += q
       l.cout += montant
       l.achats += montant

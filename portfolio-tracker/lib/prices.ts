@@ -1,44 +1,76 @@
-export async function fetchPrices(symbols: string[]): Promise<Record<string, number>> {
-  const prices: Record<string, number> = {}
+const HEADERS = { 'User-Agent': 'Mozilla/5.0' }
+const CACHE = { revalidate: 300, tags: ['prices'] }
 
-  // Récupère le taux de change EUR/USD
-  let usdToEur = 1
+export interface Quote {
+  price: number       // cours dans la devise de cotation
+  currency: string    // devise de cotation (EUR, USD, GBP...)
+  fxToEur: number     // 1 <devise> = x EUR
+  priceEur: number    // cours converti en euros
+  time: number | null // horodatage du dernier cours (secondes Unix)
+}
+
+// Repli si Yahoo ne renvoie pas la devise : suffixes des places cotées en EUR
+const EUR_SUFFIXES = ['.PA', '.BR', '.AS', '.MI', '.DE', '.MC', '-EUR']
+
+async function fetchMeta(symbol: string): Promise<any | null> {
   try {
-    const fxRes = await fetch(
-      'https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=1d',
-      { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300, tags: ['prices'] } }
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`,
+      { headers: HEADERS, next: CACHE }
     )
-    const fxData = await fxRes.json()
-    const eurUsd = fxData?.chart?.result?.[0]?.meta?.regularMarketPrice
-    if (eurUsd) usdToEur = 1 / eurUsd
+    const data = await res.json()
+    return data?.chart?.result?.[0]?.meta ?? null
   } catch {
-    console.error('Erreur taux de change')
+    console.error(`Erreur prix pour ${symbol}`)
+    return null
   }
+}
 
-  // Symboles cotés en EUR sur Yahoo (actions françaises et ETF Euronext)
-  const eurSymbols = ['.PA', '.BR', '.AS', '.MI', '.DE', '.MC', '-EUR']
+/** 1 <devise> = x EUR, ou null si Yahoo ne donne pas de taux fiable. */
+async function fxToEur(currency: string): Promise<number | null> {
+  if (currency === 'EUR') return 1
+  if (currency === 'USD') {
+    const eurUsd = (await fetchMeta('EURUSD=X'))?.regularMarketPrice
+    return eurUsd ? 1 / eurUsd : null
+  }
+  const direct = (await fetchMeta(`${currency}EUR=X`))?.regularMarketPrice
+  if (direct) return direct
+  const inverse = (await fetchMeta(`EUR${currency}=X`))?.regularMarketPrice
+  return inverse ? 1 / inverse : null
+}
+
+/** Cours détaillés : devise de cotation (lue chez Yahoo), taux utilisé, heure du dernier cours. */
+export async function fetchQuotes(symbols: string[]): Promise<Record<string, Quote>> {
+  const quotes: Record<string, Quote> = {}
+  const fxCache = new Map<string, Promise<number | null>>()
+  const getFx = (cur: string) => {
+    if (!fxCache.has(cur)) fxCache.set(cur, fxToEur(cur))
+    return fxCache.get(cur)!
+  }
 
   await Promise.all(
     symbols.map(async (symbol) => {
-      try {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`
-        const res = await fetch(url, {
-          headers: { 'User-Agent': 'Mozilla/5.0' },
-          next: { revalidate: 300, tags: ['prices'] },
-        })
-        const data = await res.json()
-        const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice
-        if (!price) return
+      const meta = await fetchMeta(symbol)
+      const raw = meta?.regularMarketPrice
+      if (!raw) return
 
-        // Si le symbole est coté en EUR, pas de conversion
-        const isEur = eurSymbols.some(suffix => symbol.includes(suffix))
-        prices[symbol] = isEur ? price : price * usdToEur
+      let currency: string = meta.currency || (EUR_SUFFIXES.some(s => symbol.includes(s)) ? 'EUR' : 'USD')
+      let price: number = raw
+      if (currency === 'GBp' || currency === 'GBX') { currency = 'GBP'; price = raw / 100 } // pence → livres
 
-      } catch {
-        console.error(`Erreur prix pour ${symbol}`)
-      }
+      const fx = await getFx(currency)
+      if (fx == null) return // pas de taux fiable : mieux vaut « N/A » qu'un faux prix
+
+      quotes[symbol] = { price, currency, fxToEur: fx, priceEur: price * fx, time: meta.regularMarketTime ?? null }
     })
   )
+  return quotes
+}
 
+/** Cours en euros (même résultat que fetchQuotes, réduit au prix converti). */
+export async function fetchPrices(symbols: string[]): Promise<Record<string, number>> {
+  const quotes = await fetchQuotes(symbols)
+  const prices: Record<string, number> = {}
+  for (const [symbol, q] of Object.entries(quotes)) prices[symbol] = q.priceEur
   return prices
 }

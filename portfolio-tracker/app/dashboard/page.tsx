@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [pnlRealise, setPnlRealise] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   const load = useCallback(async () => {
       const [posRes, statRes, pnlRes] = await Promise.all([
@@ -42,23 +43,24 @@ export default function Dashboard() {
 
   useEffect(() => { load() }, [load])
 
-  function exportCSV() {
-    const headers = ['Symbole','Nom','Compte','Quantité','Prix revient (€)','Prix actuel (€)','Valeur (€)','Plus-value (€)','Plus-value (%)']
-    const rows = positions.map(p => [
-      p.symbole, p.nom, p.compte,
-      p.quantite.toFixed(6),
-      p.prixRevient.toFixed(4),
-      p.prixActuel?.toFixed(4) ?? 'N/A',
-      (p.valeurActuelle ?? p.cout_total).toFixed(2),
-      p.plusvalue?.toFixed(2) ?? 'N/A',
-      p.plusvaluePct?.toFixed(2) ?? 'N/A',
-    ])
-    const csv = [headers, ...rows].map(r => r.join(';')).join('\n')
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url
-    a.download = `portfolio_${new Date().toISOString().slice(0,10)}.csv`
-    a.click(); URL.revokeObjectURL(url)
+  async function exportCSV() {
+    if (exporting) return
+    setExporting(true)
+    try {
+      // Le fichier est construit côté serveur : résumé, poids, P&L réalisé, devises, heure des cours...
+      const res = await fetch('/api/export')
+      if (res.status === 401) { router.push('/'); return }
+      if (!res.ok) throw new Error('export')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a'); a.href = url
+      a.download = `portfolio_${new Date().toISOString().slice(0,10)}.csv`
+      a.click(); URL.revokeObjectURL(url)
+    } catch {
+      alert("L'export a échoué, réessaie dans un instant.")
+    } finally {
+      setExporting(false)
+    }
   }
 
   if (loading) return (
@@ -108,7 +110,7 @@ export default function Dashboard() {
             <h2 className="font-semibold text-slate-200">Positions actuelles</h2>
             <button onClick={exportCSV}
               className="flex items-center gap-2 bg-slate-700 hover:bg-yellow-900 text-slate-200 text-sm px-3 py-1.5 rounded-lg transition-colors">
-              ⬇ Export CSV
+              {exporting ? '⏳ Export...' : '⬇ Export CSV'}
             </button>
           </div>
           {/* Version téléphone : une carte par position */}

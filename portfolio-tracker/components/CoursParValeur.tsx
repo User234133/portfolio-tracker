@@ -40,7 +40,7 @@ function PeriodBtn({ active, onClick, label }: { active: boolean; onClick: () =>
 
 interface Valeur { symbole: string; nom: string; qty: number }
 
-export default function CoursParValeur() {
+export default function CoursParValeur({ refreshKey = 0 }: { refreshKey?: number }) {
   const router = useRouter()
   const [valeurs, setValeurs] = useState<Valeur[]>([])
   const [symbole, setSymbole] = useState('')
@@ -84,7 +84,7 @@ export default function CoursParValeur() {
       .then(d => { if (!cancelled) { setData(d); setLoading(false) } })
       .catch(() => { if (!cancelled) { setData({ points: [], erreur: 'Erreur de chargement' }); setLoading(false) } })
     return () => { cancelled = true }
-  }, [symbole, period])
+  }, [symbole, period, refreshKey])
 
   const devise: string = data?.devise || 'EUR'
   const points: any[] = data?.points || []

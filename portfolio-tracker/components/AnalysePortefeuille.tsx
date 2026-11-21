@@ -48,7 +48,7 @@ const Tip = ({ children }: { children: React.ReactNode }) => (
 
 const legendFmt = (v: string) => <span className="text-slate-300 text-xs">{v}</span>
 
-export default function AnalysePortefeuille() {
+export default function AnalysePortefeuille({ refreshKey = 0 }: { refreshKey?: number }) {
   const router = useRouter()
   const [data, setData] = useState<any>(null)
   const [erreur, setErreur] = useState('')
@@ -60,13 +60,14 @@ export default function AnalysePortefeuille() {
   const [loadingHisto, setLoadingHisto] = useState(true)
 
   useEffect(() => {
+    setData(null)
     fetch('/api/analyse')
       .then(async res => {
         if (res.status === 401) { router.push('/'); return }
         setData(await res.json())
       })
       .catch(() => setErreur('Erreur de chargement'))
-  }, [router])
+  }, [router, refreshKey])
 
   useEffect(() => {
     let cancelled = false
@@ -76,7 +77,7 @@ export default function AnalysePortefeuille() {
       .then(d => { if (!cancelled) { setHisto(Array.isArray(d) ? d : []); setLoadingHisto(false) } })
       .catch(() => { if (!cancelled) { setHisto([]); setLoadingHisto(false) } })
     return () => { cancelled = true }
-  }, [period])
+  }, [period, refreshKey])
 
   if (erreur) return <div className="text-red-400 text-sm">{erreur}</div>
   if (!data) return <div className="flex items-center justify-center h-64 text-slate-400">Le hamster fait ses calculs... 🐹</div>

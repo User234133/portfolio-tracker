@@ -6,7 +6,7 @@ export async function fetchPrices(symbols: string[]): Promise<Record<string, num
   try {
     const fxRes = await fetch(
       'https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=1d',
-      { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300 } }
+      { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300, tags: ['prices'] } }
     )
     const fxData = await fxRes.json()
     const eurUsd = fxData?.chart?.result?.[0]?.meta?.regularMarketPrice
@@ -24,7 +24,7 @@ export async function fetchPrices(symbols: string[]): Promise<Record<string, num
         const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`
         const res = await fetch(url, {
           headers: { 'User-Agent': 'Mozilla/5.0' },
-          next: { revalidate: 300 },
+          next: { revalidate: 300, tags: ['prices'] },
         })
         const data = await res.json()
         const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice

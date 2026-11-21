@@ -29,7 +29,7 @@ export function chartParams(period: Period, since?: string): string {
 export async function fetchChart(symbol: string, params: string): Promise<Chart | null> {
   try {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?${params}`
-    const res = await fetch(url, { headers: HEADERS, next: { revalidate: 300 } })
+    const res = await fetch(url, { headers: HEADERS, next: { revalidate: 300, tags: ['prices'] } })
     const data = await res.json()
     const result = data?.chart?.result?.[0]
     if (!result) return null

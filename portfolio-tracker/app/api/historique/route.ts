@@ -12,7 +12,7 @@ async function fetchHistory(symbol: string, period: string): Promise<{ date: str
   const { range, interval } = rangeMap[period] || rangeMap['1y']
   try {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}`
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300 } })
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300, tags: ['prices'] } })
     const data = await res.json()
     const result = data?.chart?.result?.[0]
     if (!result) return []
@@ -28,7 +28,7 @@ async function fetchHistory(symbol: string, period: string): Promise<{ date: str
 async function getEurUsd(): Promise<number> {
   try {
     const res = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=5d',
-      { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300 } })
+      { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300, tags: ['prices'] } })
     const data = await res.json()
     const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice
     return rate ? 1 / rate : 0.92

@@ -1,8 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
+import RefreshButton from '@/components/RefreshButton'
 
 const fmt = (n: number) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 })
 const fmtPct = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`
@@ -23,9 +24,9 @@ export default function Dashboard() {
   const [stats, setStats] = useState<any>(null)
   const [pnlRealise, setPnlRealise] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null)
 
-  useEffect(() => {
-    async function load() {
+  const load = useCallback(async () => {
       const [posRes, statRes, pnlRes] = await Promise.all([
         fetch('/api/positions'),
         fetch('/api/stats'),
@@ -36,9 +37,10 @@ export default function Dashboard() {
       setStats(await statRes.json())
       setPnlRealise(await pnlRes.json())
       setLoading(false)
-    }
-    load()
+      setUpdatedAt(new Date())
   }, [router])
+
+  useEffect(() => { load() }, [load])
 
   function exportCSV() {
     const headers = ['Symbole','Nom','Compte','Quantité','Prix revient (€)','Prix actuel (€)','Valeur (€)','Plus-value (€)','Plus-value (%)']
@@ -80,7 +82,10 @@ export default function Dashboard() {
     <div className="min-h-screen">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Tableau de bord</h1>
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+          <h1 className="text-2xl font-bold">Tableau de bord</h1>
+          <RefreshButton onRefreshed={load} updatedAt={updatedAt} />
+        </div>
 
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
